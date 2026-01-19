@@ -1,6 +1,6 @@
-export const extractEmail = (text: string) => {
-  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-  const match = text.match(emailRegex);
+import { EMAIL_REGEX } from "@/config/constants";
 
-  return match ? match[0] : null;
+export const extractEmails = (text: string): string => {
+  const matches = text.match(EMAIL_REGEX);
+  return [...new Set(matches ?? [])].join(", ");
 };

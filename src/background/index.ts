@@ -1,4 +1,4 @@
-import { extractEmail } from "@/lib/extract-email";
+import { extractEmails } from "@/lib/extract-email";
 import { issues } from "@/services/issues";
 
 console.log("background is running");
@@ -13,7 +13,7 @@ async function verifyMessage(message: string) {
   try {
     if (!message) return false;
 
-    const email = extractEmail(message);
+    const email = extractEmails(message);
     if (!email) return false;
 
     await issues.addIssue(email, message);

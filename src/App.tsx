@@ -12,7 +12,7 @@ export function App() {
   return (
     <div className="flex flex-col min-w-[405px] min-h-[600px] p-4 gap-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Filter GPT</h1>
+        <h1 className="text-2xl font-mono font-bold">Filter GPT</h1>
       </div>
 
       <Tabs defaultValue="currentIssues" className="w-full">
