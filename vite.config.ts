@@ -8,11 +8,23 @@ import manifest from "./manifest.config";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), crx({ manifest }), tailwindcss()],
+  build: {
+    emptyOutDir: true,
+    outDir: "dist",
+    rollupOptions: {
+      output: {
+        chunkFileNames: "assets/chunk-[hash].js",
+      },
+    },
+  },
+  plugins: [crx({ manifest }), react(), tailwindcss()],
   server: {
     cors: {
       origin: [/chrome-extension:\/\//],
     },
+  },
+  legacy: {
+    skipWebSocketTokenCheck: true,
   },
   resolve: {
     alias: {
