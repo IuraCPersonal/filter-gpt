@@ -23,8 +23,6 @@ export function IssueCard({
   dismissedUntil,
   onDismiss,
 }: IssueCardProps) {
-  console.log(dismissedUntil);
-
   const isDismissed = useMemo(
     () => dismissedUntil && dismissedUntil > new Date().getTime(),
     [dismissedUntil]
