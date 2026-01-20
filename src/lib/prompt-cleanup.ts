@@ -1,27 +1,20 @@
-import { EMAIL_REGEX } from "@/config";
+import { scanner, type ScanResult } from "@/services/scanner";
+
+export interface CleanupResult {
+  anonymizedText: string;
+  foundIssues: string[];
+}
 
 export const promptCleanup = (
   text: string,
-  dismissedIssues: string[]
-): { anonymizedText: string; foundIssues: string[] } => {
-  let anonymizedText = text;
-  const foundIssues = new Set<string>();
-  const matches = text.match(EMAIL_REGEX);
-
-  if (matches) {
-    matches.forEach((match) => {
-      if (!dismissedIssues.includes(match.toLowerCase())) {
-        foundIssues.add(match);
-      }
-    });
-
-    foundIssues.forEach((issue) => {
-      anonymizedText = anonymizedText.replace(issue, "[EMAIL_ADDRES]");
-    });
-  }
+  dismissedIssues: string[] = []
+): CleanupResult => {
+  const result: ScanResult = scanner.scan(text, {
+    ignoredValues: dismissedIssues,
+  });
 
   return {
-    anonymizedText,
-    foundIssues: Array.from(foundIssues),
+    anonymizedText: result.anonymizedText,
+    foundIssues: result.matches.map((m) => m.value),
   };
 };
