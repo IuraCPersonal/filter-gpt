@@ -1,6 +1,6 @@
 import { issues } from "@/services/issues";
 import { HistoryIcon } from "lucide-react";
-import { useObservableState } from "observable-hooks";
+import { useObservableEagerState } from "observable-hooks";
 import { IssueCard } from "./issue-card";
 import {
   Empty,
@@ -11,7 +11,7 @@ import {
 } from "./ui/empty";
 
 export function ActiveIssues() {
-  const activeIssues$ = useObservableState(issues.activeIssues$);
+  const activeIssues$ = useObservableEagerState(issues.activeIssues$);
 
   if (!activeIssues$ || activeIssues$.length === 0)
     return (
@@ -28,10 +28,18 @@ export function ActiveIssues() {
       </div>
     );
 
+  const handleDismiss = (id: string) => {
+    issues.dismissIssue(id);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {activeIssues$.map((issue) => (
-        <IssueCard key={issue.id} {...issue} onDismiss={() => {}} />
+        <IssueCard
+          key={issue.id}
+          {...issue}
+          onDismiss={() => handleDismiss(issue.id)}
+        />
       ))}
     </div>
   );

@@ -16,3 +16,9 @@ export const EMAIL_REGEX = new RegExp(
   "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
   "g"
 );
+export const MessageType = {
+  AddIssue: "add-issue",
+  ScanRequest: "scan-request",
+  ScanResponse: "scan-response",
+  VerifyMessage: "verify-message",
+} as const;

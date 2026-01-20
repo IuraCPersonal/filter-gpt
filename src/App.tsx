@@ -1,32 +1,65 @@
+import { ISSUES_STORAGE_KEY } from "@/config";
+import { Shield } from "lucide-react";
 import { useEffect } from "react";
+
 import { ActiveIssues } from "./components/active-issues";
 import { HistoryIssues } from "./components/history-issues";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
-import { issues } from "./services/issues";
+import { issues, type Issue } from "./services/issues";
 
 export function App() {
   useEffect(() => {
     issues.init();
   }, []);
 
+  useEffect(() => {
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes[ISSUES_STORAGE_KEY]) {
+        issues.setIssues(changes[ISSUES_STORAGE_KEY].newValue as Issue[]);
+      }
+    });
+  }, []);
+
   return (
-    <div className="flex flex-col min-w-[405px] min-h-[600px] p-4 gap-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-mono font-bold">Filter GPT</h1>
+    <div className="flex flex-col min-w-[405px] min-h-[600px] p-0 bg-[#f8fafc] border rounded-lg shadow">
+      <div className="flex items-center gap-3 p-6 bg-white border-b rounded-t-lg">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 mr-3">
+          <Shield className="w-7 h-7 text-blue-500" />
+        </div>
+        <div className="flex flex-col">
+          <h1 className="text-xl font-mono font-extrabold text-gray-900 tracking-tight mb-0.5">
+            Lasso Guard
+          </h1>
+          <p className="text-xs text-gray-500 font-medium">
+            Email Detection &amp; Anonymization
+          </p>
+        </div>
       </div>
 
-      <Tabs defaultValue="currentIssues" className="w-full">
-        <TabsList>
-          <TabsTrigger value="currentIssues">Current Issues</TabsTrigger>
-          <TabsTrigger value="history">History Logs</TabsTrigger>
-        </TabsList>
-        <TabsContent value="currentIssues">
-          <ActiveIssues />
-        </TabsContent>
-        <TabsContent value="history">
-          <HistoryIssues />
-        </TabsContent>
-      </Tabs>
+      <div className="flex-1 flex flex-col pt-2 pb-4 px-4">
+        <Tabs defaultValue="currentIssues" className="w-full">
+          <TabsList className="mb-3 bg-transparent gap-2 flex px-0">
+            <TabsTrigger
+              value="currentIssues"
+              className="rounded-none px-3 py-1.5 text-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 font-mono"
+            >
+              Current Issues
+            </TabsTrigger>
+            <TabsTrigger
+              value="history"
+              className="rounded-none px-3 py-1.5 text-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 font-mono"
+            >
+              History Logs
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="currentIssues">
+            <ActiveIssues />
+          </TabsContent>
+          <TabsContent value="history">
+            <HistoryIssues />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

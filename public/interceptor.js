@@ -1,23 +1,9 @@
 // This is a script that will be injected into the page to intercept the requests and responses
-
 (function () {
-  console.log("[Interceptor] Script is running");
   if (window.interceptor) return;
   window.interceptor = true;
 
   const originalFetch = window.fetch;
-  const pendingRequests = new Map();
-
-  // Listen for approval/denial from content script
-  window.addEventListener("message", (event) => {
-    if (event.source !== window || event.data?.type !== "USER_RESPONSE") return;
-
-    const resolver = pendingRequests.get(event.data.id);
-    if (resolver) {
-      resolver(event.data.approved);
-      pendingRequests.delete(event.data.id);
-    }
-  });
 
   window.fetch = async (...args) => {
     const [url, options] = args;
@@ -32,30 +18,40 @@
       const userMessage = body.messages?.[0]?.content?.parts?.[0];
 
       if (userMessage) {
-        const requestId = Math.random().toString(36).substr(2, 9);
+        const requestId = Math.random().toString(36).substring(2, 15);
 
+        // Send scan request to content script
         window.postMessage({
-          type: "USER_MESSAGE",
           id: requestId,
+          type: "scan-request",
           text: userMessage,
         });
 
-        // Block until content script responds
-        const approved = await new Promise((resolve) => {
-          pendingRequests.set(requestId, resolve);
-        });
+        const response = await Promise.race([
+          new Promise((resolve) => {
+            const handler = (e) => {
+              if (
+                e.source === window &&
+                e.data.type === "scan-response" &&
+                e.data.id === requestId
+              ) {
+                window.removeEventListener("message", handler);
+                resolve(e.data.result);
+              }
+            };
+            window.addEventListener("message", handler);
+          }),
 
-        if (!approved) {
-          return new Response(JSON.stringify({ blocked: true }), {
-            status: 403,
-            headers: { "Content-Type": "application/json" },
-          });
+          new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
+        ]);
+
+        if (response.anonymizedText) {
+          body.messages[0].content.parts[0] = response.anonymizedText;
+          options.body = JSON.stringify(body);
         }
       }
     }
 
     return originalFetch.apply(this, args);
   };
-
-  console.log("fetch is now intercepted");
 })();

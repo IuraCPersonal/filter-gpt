@@ -1,33 +1,74 @@
+import { makeHotStream } from "@/lib/rxjs-operators/make-hot-stream";
 import { storage } from "@/lib/storage";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, filter, map } from "rxjs";
 
 export type Issue = {
   id: string;
   value: string;
-  detectedAt: number;
   context?: string;
+  isActive: boolean;
+  detectedAt: number;
+  dismissedUntil?: number;
 };
 
 export class Issues {
   private static instance: Issues;
 
-  #activeIssues$ = new BehaviorSubject<Issue[]>([]);
-  #historyIssues$ = new BehaviorSubject<Issue[]>([]);
+  #issues$ = new BehaviorSubject<{
+    issues: Issue[];
+    syncToStorage?: boolean;
+  }>({
+    issues: [],
+  });
 
-  activeIssues$ = this.#activeIssues$.asObservable();
-  historyIssues$ = this.#historyIssues$.asObservable();
+  activeIssues$ = makeHotStream(
+    this.#issues$.pipe(
+      map(({ issues }) =>
+        issues.filter(
+          (i) =>
+            (!i.dismissedUntil || i.dismissedUntil < Date.now()) && i.isActive
+        )
+      )
+    )
+  );
+
+  historyIssues$ = makeHotStream(
+    this.#issues$.pipe(map(({ issues }) => issues))
+  );
+
+  sub = this.#issues$
+    .pipe(
+      filter(({ syncToStorage }) => syncToStorage === true),
+      map(({ issues }) => issues)
+    )
+    .subscribe((issues) => {
+      console.log("syncing issues to storage", issues);
+      storage.setIssues(issues);
+    });
 
   init = () => {
     storage.getIssues().then((issues) => {
-      if (issues) {
-        this.#activeIssues$.next(issues.activeIssues);
-        this.#historyIssues$.next(issues.historyIssues);
-      }
+      this.#issues$.next({ issues });
     });
   };
 
-  addIssue = (value: string, context?: string) => {
-    storage.addIssue(value, context);
+  getIssues = () => {
+    return this.#issues$.value;
+  };
+
+  setIssues = (issues: Issue[]) => {
+    this.#issues$.next({ issues });
+  };
+
+  dismissIssue = (id: string) => {
+    const { issues } = this.#issues$.value;
+    const dismissedUntil = Date.now() + 1000 * 60 * 60 * 24;
+
+    const updatedIssues = issues.map((i) =>
+      i.id === id ? { ...i, dismissedUntil } : i
+    );
+
+    this.#issues$.next({ issues: updatedIssues, syncToStorage: true });
   };
 
   private constructor() {}
