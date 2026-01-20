@@ -1,6 +1,6 @@
 import { promptCleanup } from "@/lib/prompt-cleanup";
 import { storage } from "@/lib/storage";
-import { issues, type Issue } from "@/services/issues";
+import { type Issue } from "@/services/issues";
 
 export async function verifyMessage(message: string) {
   if (!message)
@@ -9,7 +9,7 @@ export async function verifyMessage(message: string) {
       foundIssues: [],
     };
 
-  const issuesData = issues.getIssues();
+  const issuesData = await storage.getIssues();
   const dismissedIssues = issuesData
     .filter((i: Issue) => i.dismissedUntil && i.dismissedUntil > Date.now())
     .map((i) => i.value.toLowerCase());
