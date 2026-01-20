@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+# Lasso Guard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Chrome extension that detects and anonymizes sensitive information (emails) in your ChatGPT prompts before they're sent.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Real-time Interception** - Intercepts ChatGPT/OpenAI API requests before they're sent
+- **Email Detection** - Scans prompts for email addresses using regex pattern matching
+- **Auto-Anonymization** - Replaces detected emails with `[EMAIL_ADDRESS]` placeholder
+- **Popup Alerts** - Shows an overlay when sensitive data is detected
+- **Issue Management** - Dismiss false positives for 24 hours
+- **History Logs** - Track all previously detected issues
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript
+- Vite + [@crxjs/vite-plugin](https://crxjs.dev/vite-plugin) for Chrome Extension bundling
+- RxJS for reactive state management
+- Tailwind CSS 4
+- Shadcn
+- Chrome Extension Manifest V3
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+
+- pnpm (recommended) or npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Install dependencies
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Start dev server with HMR
+pnpm dev
 ```
+
+Then load the extension in Chrome:
+
+1. Open `chrome://extensions/`
+2. Enable **Developer mode** (top right toggle)
+3. Click **Load unpacked**
+4. Select the `dist` folder from the project
+
+The extension will auto-reload on file changes.
+
+### Build for Production
+
+```bash
+pnpm build
+```
+
+The production build will be in the `dist` folder, ready to be packed or uploaded to the Chrome Web Store.
+
+## Project Structure
+
+```
+src/
+├── app.tsx                 # Main popup UI
+├── background/             # Service worker (message handling)
+│   ├── index.ts
+│   └── verify-message.ts   # Scans messages for sensitive data
+├── components/             # React components
+│   ├── active-issues.tsx
+│   ├── history-issues.tsx
+│   ├── issue-card.tsx
+│   └── ui/                 # Shadcn-style UI primitives
+├── content/                # Content script (injected into ChatGPT pages)
+│   └── index.ts
+├── lib/
+│   ├── prompt-cleanup.ts   # Email detection & anonymization logic
+│   └── storage.ts          # Chrome storage wrapper
+├── services/
+│   └── issues.ts           # Issue state management (RxJS)
+└── config/
+    └── constants.ts        # Regex patterns, storage keys
+public/
+└── interceptor.js          # Fetch interceptor (injected into page context)
+```
+
+## How It Works
+
+1. **Interceptor** (`public/interceptor.js`) - Injected into ChatGPT pages, intercepts `fetch` calls to `/conversation` endpoint
+2. **Content Script** (`src/content/index.ts`) - Bridges between page and extension, receives scan requests
+3. **Background Service** (`src/background/`) - Processes messages, detects emails, stores issues
+4. **Popup UI** (`src/app.tsx`) - Displays active issues and history, allows dismissing false positives
+
+## Scripts
+
+| Command        | Description                       |
+| -------------- | --------------------------------- |
+| `pnpm dev`     | Start development server with HMR |
+| `pnpm build`   | Build for production              |
+| `pnpm lint`    | Run ESLint                        |
+| `pnpm preview` | Preview production build          |
