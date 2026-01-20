@@ -28,6 +28,11 @@ class Storage {
   async addIssue(value: string, context?: string) {
     const issues = await this.getIssues();
 
+    const existingIssue = issues.find(
+      (i) => i.value.toLowerCase() === value.toLowerCase()
+    );
+    if (existingIssue) return;
+
     const newIssue: Issue = {
       id: Math.random().toString(36).substring(2, 15),
       value,
