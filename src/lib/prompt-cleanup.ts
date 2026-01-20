@@ -16,7 +16,7 @@ export const promptCleanup = (
     });
 
     foundIssues.forEach((issue) => {
-      anonymizedText = anonymizedText.replace(issue, "[email]");
+      anonymizedText = anonymizedText.replace(issue, "[EMAIL_ADDRES]");
     });
   }
 
