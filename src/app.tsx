@@ -13,11 +13,18 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    chrome.storage.onChanged.addListener((changes) => {
+    const handler = (changes: {
+      [key: string]: chrome.storage.StorageChange;
+    }) => {
       if (changes[ISSUES_STORAGE_KEY]) {
         issues.setIssues(changes[ISSUES_STORAGE_KEY].newValue as Issue[]);
       }
-    });
+    };
+
+    chrome.storage.onChanged.addListener(handler);
+    return () => {
+      chrome.storage.onChanged.removeListener(handler);
+    };
   }, []);
 
   return (
