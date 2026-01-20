@@ -16,7 +16,7 @@ export async function verifyMessage(message: string) {
 
   const result = promptCleanup(message, dismissedIssues);
 
-  if (result.foundIssues.length > 0) {
+  if (result?.foundIssues?.length > 0) {
     for (const issue of result.foundIssues) {
       await storage.addIssue(issue, message);
     }

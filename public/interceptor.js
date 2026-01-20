@@ -27,25 +27,28 @@
           text: userMessage,
         });
 
-        const response = await Promise.race([
-          new Promise((resolve) => {
-            const handler = (e) => {
-              if (
-                e.source === window &&
-                e.data.type === "scan-response" &&
-                e.data.id === requestId
-              ) {
-                window.removeEventListener("message", handler);
-                resolve(e.data.result);
-              }
-            };
-            window.addEventListener("message", handler);
-          }),
+        const response = await new Promise((resolve) => {
+          const timeoutId = setTimeout(() => {
+            window.removeEventListener("message", handler);
+            resolve(null);
+          }, 2500);
 
-          new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
-        ]);
+          function handler(e) {
+            if (
+              e.source === window &&
+              e.data.type === "scan-response" &&
+              e.data.id === requestId
+            ) {
+              clearTimeout(timeoutId);
+              window.removeEventListener("message", handler);
+              resolve(e.data.result);
+            }
+          }
 
-        if (response.anonymizedText) {
+          window.addEventListener("message", handler);
+        });
+
+        if (response?.anonymizedText) {
           body.messages[0].content.parts[0] = response.anonymizedText;
           options.body = JSON.stringify(body);
         }

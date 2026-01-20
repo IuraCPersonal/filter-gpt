@@ -29,7 +29,7 @@ window.addEventListener("message", async (event) => {
       result: res,
     });
 
-    if (res.foundIssues.length > 0) {
+    if (res?.foundIssues?.length > 0) {
       const src = chrome.runtime.getURL("../../index.html");
       // Create a centered overlay
       const overlay = document.createElement("div");
