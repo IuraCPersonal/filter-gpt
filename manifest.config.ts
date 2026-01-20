@@ -32,5 +32,9 @@ export default defineManifest({
       resources: ["interceptor.js"],
       matches: ["*://*.openai.com/*", "*://*.chatgpt.com/*"],
     },
+    {
+      resources: ["index.html"],
+      matches: ["*://*.openai.com/*", "*://*.chatgpt.com/*"],
+    },
   ],
 });
