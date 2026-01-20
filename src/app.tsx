@@ -1,29 +1,12 @@
-import { ISSUES_STORAGE_KEY } from "@/config";
+import { useSyncStorage } from "@/hooks";
 import { Shield } from "lucide-react";
-import { useEffect } from "react";
 
 import { ActiveIssues } from "./components/active-issues";
 import { HistoryIssues } from "./components/history-issues";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
-import { issues, type Issue } from "./services/issues";
 
 export function App() {
-  useEffect(() => {
-    issues.init();
-
-    const handler = (changes: {
-      [key: string]: chrome.storage.StorageChange;
-    }) => {
-      if (changes[ISSUES_STORAGE_KEY]) {
-        issues.setIssues(changes[ISSUES_STORAGE_KEY].newValue as Issue[]);
-      }
-    };
-
-    chrome.storage.onChanged.addListener(handler);
-    return () => {
-      chrome.storage.onChanged.removeListener(handler);
-    };
-  }, []);
+  useSyncStorage();
 
   return (
     <div className="flex flex-col min-w-[405px] min-h-[600px] p-0 bg-[#f8fafc] border rounded-lg shadow">

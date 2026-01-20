@@ -14,19 +14,7 @@ export function ActiveIssues() {
   const activeIssues$ = useObservableEagerState(issues.activeIssues$);
 
   if (!activeIssues$ || activeIssues$.length === 0)
-    return (
-      <div className="flex justify-center items-center h-full mt-20">
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HistoryIcon />
-            </EmptyMedia>
-            <EmptyTitle>No active issues</EmptyTitle>
-            <EmptyDescription>No active issues found</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
-    );
+    return <EmptyActiveIssues />;
 
   const handleDismiss = (id: string) => {
     issues.dismissIssue(id);
@@ -41,6 +29,22 @@ export function ActiveIssues() {
           onDismiss={() => handleDismiss(issue.id)}
         />
       ))}
+    </div>
+  );
+}
+
+export function EmptyActiveIssues() {
+  return (
+    <div className="flex justify-center items-center h-full mt-20">
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <HistoryIcon />
+          </EmptyMedia>
+          <EmptyTitle>No active issues</EmptyTitle>
+          <EmptyDescription>No active issues found</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     </div>
   );
 }

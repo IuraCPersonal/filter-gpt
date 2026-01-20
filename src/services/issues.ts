@@ -21,6 +21,9 @@ export class Issues {
     issues: [],
   });
 
+  /**
+   * Observable for the active issues.
+   */
   activeIssues$ = makeHotStream(
     this.#issues$.pipe(
       map(({ issues }) =>
@@ -32,10 +35,16 @@ export class Issues {
     )
   );
 
+  /**
+   * Observable for the history issues.
+   */
   historyIssues$ = makeHotStream(
     this.#issues$.pipe(map(({ issues }) => issues))
   );
 
+  /**
+   * Subscribes to the issues observable and syncs the issues to storage.
+   */
   sub = this.#issues$
     .pipe(
       filter(({ syncToStorage }) => syncToStorage === true),
@@ -46,6 +55,9 @@ export class Issues {
       storage.setIssues(issues);
     });
 
+  /**
+   * Initializes the issues subject from persisted storage.
+   */
   init = () => {
     storage.getIssues().then((issues) => {
       this.#issues$.next({ issues });

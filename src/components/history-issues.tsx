@@ -14,25 +14,29 @@ export function HistoryIssues() {
   const historyIssues$ = useObservableState(issues.historyIssues$);
 
   if (!historyIssues$ || historyIssues$.length === 0)
-    return (
-      <div className="flex justify-center items-center h-full mt-20">
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HistoryIcon />
-            </EmptyMedia>
-            <EmptyTitle>No history issues</EmptyTitle>
-            <EmptyDescription>No history issues found</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
-    );
+    return <EmptyHistoryIssues />;
 
   return (
     <div className="flex flex-col gap-4">
       {historyIssues$.map((issue) => (
         <IssueCard key={issue.id} {...issue} />
       ))}
+    </div>
+  );
+}
+
+function EmptyHistoryIssues() {
+  return (
+    <div className="flex justify-center items-center h-full mt-20">
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <HistoryIcon />
+          </EmptyMedia>
+          <EmptyTitle>No history issues</EmptyTitle>
+          <EmptyDescription>No history issues found</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     </div>
   );
 }

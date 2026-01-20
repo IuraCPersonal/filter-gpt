@@ -1,6 +1,5 @@
 import type { Issue } from "@/services/issues";
 import { History } from "lucide-react";
-import { useMemo } from "react";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -23,10 +22,8 @@ export function IssueCard({
   dismissedUntil,
   onDismiss,
 }: IssueCardProps) {
-  const isDismissed = useMemo(
-    () => dismissedUntil && dismissedUntil > new Date().getTime(),
-    [dismissedUntil]
-  );
+  const currentTime = new Date().getTime();
+  const isDismissed = dismissedUntil && dismissedUntil > currentTime;
 
   return (
     <Card className="w-full hover:shadow-md transition-shadow duration-300">
@@ -49,10 +46,7 @@ export function IssueCard({
         {isDismissed && (
           <CardFooter className="pl-0">
             <div className="text-xs text-muted-foreground">
-              Dismissed until{" "}
-              {dismissedUntil
-                ? new Date(dismissedUntil).toLocaleString()
-                : "never"}
+              Dismissed until {new Date(dismissedUntil).toLocaleString()}
             </div>
           </CardFooter>
         )}

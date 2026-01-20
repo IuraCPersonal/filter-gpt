@@ -22,7 +22,7 @@ export default defineManifest({
 
   content_scripts: [
     {
-      js: ["src/content/index.ts"],
+      js: ["src/background/content.ts"],
       matches: ["*://*.openai.com/*", "*://*.chatgpt.com/*"],
     },
   ],
