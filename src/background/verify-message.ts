@@ -18,7 +18,7 @@ export async function verifyMessage(message: string) {
 
   if (result.foundIssues.length > 0) {
     for (const issue of result.foundIssues) {
-      storage.addIssue(issue, message);
+      await storage.addIssue(issue, message);
     }
   }
 
