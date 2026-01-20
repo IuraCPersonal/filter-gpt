@@ -10,9 +10,7 @@ import { issues, type Issue } from "./services/issues";
 export function App() {
   useEffect(() => {
     issues.init();
-  }, []);
 
-  useEffect(() => {
     const handler = (changes: {
       [key: string]: chrome.storage.StorageChange;
     }) => {
